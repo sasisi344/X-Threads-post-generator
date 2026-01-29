@@ -1,5 +1,6 @@
 import requests
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import json
 import os
 from dotenv import load_dotenv
@@ -39,8 +40,7 @@ def generate_posts(content, api_key=None, persona="blogger"):
     
     persona_instruction = personas.get(persona, personas["blogger"])
 
-    genai.configure(api_key=key)
-    model = genai.GenerativeModel("gemini-2.0-flash")
+    client = genai.Client(api_key=key)
 
     prompt = f"""
     {persona_instruction}
@@ -60,9 +60,10 @@ def generate_posts(content, api_key=None, persona="blogger"):
     """
 
     try:
-        response = model.generate_content(
-            prompt,
-            generation_config=genai.types.GenerationConfig(
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt,
+            config=types.GenerateContentConfig(
                 response_mime_type="application/json",
             )
         )
